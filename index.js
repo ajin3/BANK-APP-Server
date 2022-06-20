@@ -4,6 +4,10 @@
 
 const express = require('express')
 
+//import jsonwebtoken
+
+const jwt = require('jsonwebtoken')
+
 //import dataService 
 
 const dataService = require('./services/data.service')
@@ -16,7 +20,26 @@ const app = express()
 
 app.use(express.json())
 
+//application specific middleware
+
+const appMiddleware = (req,res,next)=>{
+    console.log("application specific middleware");
+    next()
+}
+
+//use middleware in app
+app.use(appMiddleware)
+
 //Bank server
+
+const jwtMiddleware = (req,res,next) => {
+    //fetch token
+    token = req.body.token
+    //verify token
+    const data = jwt.verify(token,'supersecretkey12345')
+    console.log(data);
+    next()
+}
 
 //Register API
 
@@ -36,7 +59,7 @@ app.post('/login',(req,res)=>{
 
 //Deposit API
 
-app.post('/deposit',(req,res)=>{
+app.post('/deposit',jwtMiddleware,(req,res)=>{
     //deposit solving
     const result = dataService.deposit(req.body.acno,req.body.password,req.body.amt)
     res.status(result.statusCode).json(result)
