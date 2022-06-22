@@ -34,11 +34,20 @@ app.use(appMiddleware)
 
 const jwtMiddleware = (req,res,next) => {
     //fetch token
-    token = req.body.token
+    
+   try {token = req.headers['x-access-token']
     //verify token
     const data = jwt.verify(token,'supersecretkey12345')
     console.log(data);
     next()
+}
+    catch{
+        res.status(401).json({
+            status:false,
+            statusCode:401,
+            message:'Please Log in'
+        })
+    }
 }
 
 //Register API
@@ -67,7 +76,7 @@ app.post('/deposit',jwtMiddleware,(req,res)=>{
 
 //Withdraw API
 
-app.post('/withdraw',(req,res)=>{
+app.post('/withdraw',jwtMiddleware,(req,res)=>{
     //deposit solving
     const result = dataService.withdraw(req.body.acno,req.body.password,req.body.amt)
     res.status(result.statusCode).json(result)
@@ -75,7 +84,7 @@ app.post('/withdraw',(req,res)=>{
 
     //Transaction API
 
-app.post('/transaction',(req,res)=>{
+app.post('/transaction',jwtMiddleware,(req,res)=>{
     //transaction solving
     const result = dataService.getTransaction(req.body.acno)
     res.status(result.statusCode).json(result)
