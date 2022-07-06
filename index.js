@@ -50,6 +50,7 @@ const jwtMiddleware = (req, res, next) => {
         //verify token
         const data = jwt.verify(token, 'supersecretkey12345')
         console.log(data);
+        req.currentAcno= data.currentAcno
         next()
     }
     catch {
@@ -89,7 +90,7 @@ app.post('/login', (req, res) => {
 
 app.post('/deposit', jwtMiddleware, (req, res) => {
     //deposit solving
-     dataService.deposit(req.body.acno, req.body.password, req.body.amt)
+     dataService.deposit(req,req.body.acno, req.body.password, req.body.amt)
      .then(result => {
         res.status(result.statusCode).json(result)
 
@@ -100,7 +101,7 @@ app.post('/deposit', jwtMiddleware, (req, res) => {
 
 app.post('/withdraw', jwtMiddleware, (req, res) => {
     //deposit solving
-    dataService.withdraw(req.body.acno, req.body.password, req.body.amt)
+    dataService.withdraw(req,req.body.acno, req.body.password, req.body.amt)
     .then(result => {
         res.status(result.statusCode).json(result)
 
@@ -114,6 +115,16 @@ app.post('/transaction', jwtMiddleware, (req, res) => {
     dataService.getTransaction(req.body.acno)
     .then(result => {
         res.status(result.statusCode).json(result)
+
+    })
+})
+
+//Delete Acc API
+app.delete('/deleteAcc/:acno',jwtMiddleware,(req, res) => {
+    //delete solving
+    dataService.deleteAcc(req.params.acno)
+    .then(result => {
+    res.status(result.statusCode).json(result)
 
     })
 })
